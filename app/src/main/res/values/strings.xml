@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">studprof</string>
     <string name="drawer_item_sign_in">Войти</string>
+    <string name="transition_name">simple_activity_transition</string>
 
     <string-array name="spinner_list_item_array">
         <item>События</item>"

@@ -90,14 +90,14 @@ public class MainActivity extends AppCompatActivity {
         if(profileDrawerItem!=null) {
             headerResult = new AccountHeaderBuilder()
                     .withActivity(this)
-                    .withHeaderBackground(R.drawable.drawer_bg)
+                    .withHeaderBackground(R.drawable.studprofdrawerbg)
                     //.withCompactStyle(true)
                     .addProfiles(profileDrawerItem)
                     .build();
         } else {
             headerResult = new AccountHeaderBuilder()
                     .withActivity(this)
-                    .withHeaderBackground(R.drawable.drawer_bg)
+                    .withHeaderBackground(R.drawable.studprofdrawerbg)
                     //.withCompactStyle(true)
                     .build();
         }

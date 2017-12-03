@@ -8,11 +8,12 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "ru.lantimat.studprof"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -24,7 +25,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.firebase:firebase-core:11.0.4'
@@ -35,7 +36,10 @@ dependencies {
     compile 'com.android.support:palette-v7:27.0.1'
     compile 'org.jsoup:jsoup:1.10.3'
     compile 'com.loopj.android:android-async-http:1.4.9'
-
+    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'org.sufficientlysecure:html-textview:3.5'
+    compile 'com.ss.bannerslider:bannerslider:1.8.0'
+    compile 'jp.wasabeef:blurry:2.1.1'
 
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     compile('com.mikepenz:materialdrawer:5.9.4@aar') {

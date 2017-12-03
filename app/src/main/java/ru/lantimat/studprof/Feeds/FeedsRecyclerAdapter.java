@@ -1,11 +1,14 @@
 package ru.lantimat.studprof.Feeds;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -18,53 +21,69 @@ import ru.lantimat.studprof.R;
 
 public class FeedsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private Context context;
     private ArrayList<Feed> mList;
 
-    public FeedsRecyclerAdapter(ArrayList<Feed> itemList) {
+    public FeedsRecyclerAdapter(Context context, ArrayList<Feed> itemList) {
+        this.context = context;
         this.mList = itemList;
     }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         switch (viewType) {
             case Feed.FIXED_TYPE:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_fixed_feed, parent, false);
-                return new NormalFeedViewHolder(view);
+                return new FixedFeedViewHolder(view);
             default:
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_normal_feed, parent, false);
-                return new FixedFeedViewHolder(view);
+                return new NormalFeedViewHolder(view);
         }
 
         /*view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_item_mark, parent, false);
-        return new MarksRecyclerAdapter.FixedFeedViewHolder(view);*/
+        return new MarksRecyclerAdapter.ImageViewHolder(view);*/
 
     }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        String time = mList.get(position).getDate();
-        String name = mList.get(position).getTitle();
-        String place = mList.get(position).getSubTitle();
+        String date = mList.get(position).getDate();
+        String title = mList.get(position).getTitle();
+        String subTitle = mList.get(position).getSubTitle();
+        String image = mList.get(position).getImage();
+        String url = mList.get(position).getUrl();
+        String visitCount = mList.get(position).getVisitCount();
+        String commentCount = mList.get(position).getCommentCount();
 
-            switch (getItemViewType(position)) {
-                case Feed.FIXED_TYPE:
+        switch (getItemViewType(position)) {
+            case Feed.NORMAL_TYPE:
+                ((NormalFeedViewHolder) holder).title.setText(title);
+                ((NormalFeedViewHolder) holder).subTitle.setText(subTitle);
+                ((NormalFeedViewHolder) holder).date.setText(date);
+                ((NormalFeedViewHolder) holder).visitCount.setText(visitCount);
+                ((NormalFeedViewHolder) holder).commentCount.setText(commentCount);
+                Picasso.with(context).load(image).fit().placeholder(R.drawable.studprofoper).into(((NormalFeedViewHolder) holder).mImg);
+                break;
+            case Feed.FIXED_TYPE:
+                ((FixedFeedViewHolder) holder).title.setText(title);
+                ((FixedFeedViewHolder) holder).subTitle.setText(subTitle);
+                ((FixedFeedViewHolder) holder).date.setText(date);
+                Picasso.with(context).load(image).fit().placeholder(R.drawable.studprofoper).into(((FixedFeedViewHolder) holder).mImg);
 
-                    ((NormalFeedViewHolder) holder).mDesc.setText(place);
-                    break;
-                case Feed.NORMAL_TYPE:
-                    ((FixedFeedViewHolder) holder).mTime.setText(time);
-                    ((FixedFeedViewHolder) holder).mName.setText(name);
-                    ((FixedFeedViewHolder) holder).mPlace.setText(place);
-                    break;
-            }
+                break;
+        }
 
 
     }
+
     @Override
     public int getItemCount() {
         if (mList == null)
             return 0;
         return mList.size();
     }
+
     @Override
     public int getItemViewType(int position) {
         if (mList != null) {
@@ -74,28 +93,37 @@ public class FeedsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
 
-
-
     public static class FixedFeedViewHolder extends RecyclerView.ViewHolder {
-        private TextView mName;
-        private TextView mTime;
-        private TextView mPlace;
+        private TextView title;
+        private TextView subTitle;
+        private TextView date;
+        private ImageView mImg;
+
         public FixedFeedViewHolder(View itemView) {
             super(itemView);
-            mName = (TextView) itemView.findViewById(R.id.tvName);
-            mTime = (TextView) itemView.findViewById(R.id.tvDesc);
-            mPlace = (TextView) itemView.findViewById(R.id.tvDesc);
+            title = (TextView) itemView.findViewById(R.id.tvFeedTitle);
+            subTitle = (TextView) itemView.findViewById(R.id.tvFeedSupportingText);
+            date = (TextView) itemView.findViewById(R.id.tvFeedtextView);
+            mImg = (ImageView) itemView.findViewById(R.id.ivFeedImage);
         }
     }
+
     public static class NormalFeedViewHolder extends RecyclerView.ViewHolder {
-        private TextView mTitle;
-        private TextView mDesc;
+        private TextView title;
+        private TextView subTitle;
+        private TextView date;
+        private TextView visitCount;
+        private TextView commentCount;
         private ImageView mImg;
+
         public NormalFeedViewHolder(View itemView) {
             super(itemView);
-            mTitle = (TextView) itemView.findViewById(R.id.tvName);
-            mDesc = (TextView) itemView.findViewById(R.id.tvDesc);
-            mImg = (ImageView) itemView.findViewById(R.id.imageView);
+            title = (TextView) itemView.findViewById(R.id.tvFeedTitle);
+            subTitle = (TextView) itemView.findViewById(R.id.tvFeedSupportingText);
+            date = (TextView) itemView.findViewById(R.id.tvFeedtextView);
+            visitCount = (TextView) itemView.findViewById(R.id.tvVisitCount);
+            commentCount = (TextView) itemView.findViewById(R.id.tvCommentCount);
+            mImg = (ImageView) itemView.findViewById(R.id.ivFeedImage);
         }
     }
 }
