@@ -23,6 +23,7 @@ import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import ru.lantimat.studprof.Feeds.FeedActivity;
+import ru.lantimat.studprof.Photo.PhotoActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         //if you want to update the items at a later time it is recommended to keep it in a variable
         PrimaryDrawerItem item1 = new PrimaryDrawerItem().withIdentifier(1).withName("feeds").withIconColor(color);
-        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(2).withName("feeds").withIconColor(color);
+        PrimaryDrawerItem item2 = new PrimaryDrawerItem().withIdentifier(2).withName("photo").withIconColor(color);
         PrimaryDrawerItem item3 = new PrimaryDrawerItem().withIdentifier(3).withName("feeds").withIconColor(color);
         PrimaryDrawerItem item4 = new PrimaryDrawerItem().withIdentifier(4).withName("feeds").withIconColor(color);
         PrimaryDrawerItem item5 = new PrimaryDrawerItem().withIdentifier(5).withName("feeds").withIconColor(color);
@@ -132,9 +133,10 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         switch (position) {
                             case 1:
+                                drawerIntent = new Intent(MainActivity.this, FeedActivity.class);
                                 break;
                             case 2:
-                                drawerIntent = new Intent(MainActivity.this, FeedActivity.class);
+                                drawerIntent = new Intent(MainActivity.this, PhotoActivity.class);
                                 break;
                             case 3:
                                 break;

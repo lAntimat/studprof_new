@@ -4,6 +4,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 import ru.lantimat.studprof.Feeds.Feed;
 import ru.lantimat.studprof.Feeds.News;
+import ru.lantimat.studprof.Photo.Photo;
 
 import static ru.lantimat.studprof.SpRestClient.urlStudProf;
 
@@ -22,11 +24,14 @@ public class Repository {
 
     public static String urlFeed = "/feed/index/?page=";
     public static String urlNews = "/news/index/?page=";
+    public static String urlPhoto = "/photo/index/?page=";
     static int feedPage;
     static int newsPage;
+    static int photosPage;
 
     static ArrayList<Feed> arFeed = new ArrayList<>();
     static ArrayList<News> arNews = new ArrayList<>();
+    static ArrayList<Photo> arPhoto = new ArrayList<>();
 
     public interface FeedCallback {
         void onSuccess(ArrayList<Feed> ar);
@@ -34,6 +39,10 @@ public class Repository {
 
     public interface NewsCallback {
         void onSuccess(ArrayList<News> ar);
+    }
+
+    public interface PhotosCallback {
+        void onSuccess(ArrayList<Photo> ar);
     }
 
     public static void getFeeds(int page, final FeedCallback callback) {
@@ -59,6 +68,22 @@ public class Repository {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 parseNews(responseBody, callback);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+    }
+
+    public static void getPhotos(int page, final PhotosCallback callback) {
+        photosPage = page;
+
+        SpRestClient.get(urlPhoto + page, null, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                parsePhotos(responseBody, callback);
             }
 
             @Override
@@ -188,6 +213,54 @@ public class Repository {
         }
 
         callback.onSuccess(arNews);
+    }
+
+    private static void parsePhotos(byte[] bytes, PhotosCallback callback) {
+        Document doc = null;//Здесь хранится будет разобранный html документ
+        try {
+
+            String str = new String(bytes, "utf-8");
+            doc = Jsoup.parse(str);
+        } catch (Exception e) {
+            //Если не получилось считать
+            e.printStackTrace();
+
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null) {
+            // задаем с какого места, я выбрал заголовке статей
+
+
+            Elements listItemRow = doc.select("article.row.photo-item");
+
+            for (int i = 0; i < listItemRow.size(); i++) {
+
+                String title = listItemRow.get(i).select("h3").text();
+                Elements textRow = listItemRow.get(i).select("div.tbg.photo-item-description");
+                Elements shortDescribe = textRow.select("p");
+                String shortDescString = "";
+                if (shortDescribe.size() > 0) shortDescString = shortDescribe.toString();
+                String date = textRow.select("span").get(0).text();
+                String visitCount = textRow.select("span").get(3).text();
+                String photosCount = textRow.select("span").get(1).text();
+                String commentsCount = textRow.select("span").get(2).text();
+                String photoAlbumUrl = listItemRow.get(i).select("a[href]").text();
+
+                ArrayList<String> arImages = new ArrayList<>();
+                Elements images = listItemRow.get(i).select("div.row").select("div").select("img");
+                for (Element url : images) {
+                    arImages.add(url.attr("src"));
+                }
+
+                arPhoto.add(new Photo(title, shortDescString, date,
+                        arImages, photoAlbumUrl, photosCount, visitCount));
+            }
+
+            callback.onSuccess(arPhoto);
+
+        }
+
     }
 
 

@@ -19,6 +19,7 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".FullNews.FullNewsActivity"></activity>
         <activity android:name=".FullFeeds.FullFeedsActivity"></activity>
+        <activity android:name=".Photo.PhotoActivity"></activity>
 
     </application>
 
