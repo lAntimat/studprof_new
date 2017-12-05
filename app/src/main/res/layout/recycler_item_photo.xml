@@ -28,6 +28,35 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tvPhotoCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="500"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="12dp"
+                card_view:layout_constraintBottom_toBottomOf="@+id/ivCommentCount"
+                card_view:layout_constraintEnd_toStartOf="@+id/ivCommentCount"
+                card_view:layout_constraintTop_toTopOf="@+id/ivCommentCount"
+                card_view:layout_constraintVertical_bias="0.444" />
+
+            <ImageView
+                android:id="@+id/ivPhotoCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:adjustViewBounds="false"
+                android:allowUndo="false"
+                android:clickable="false"
+                android:focusable="false"
+                android:padding="8dp"
+                android:src="@drawable/ic_camera_grey600_18dp"
+                card_view:layout_constraintBottom_toBottomOf="@+id/tvPhotoCount"
+                card_view:layout_constraintEnd_toStartOf="@+id/tvPhotoCount"
+                card_view:layout_constraintHorizontal_bias="1.0"
+                card_view:layout_constraintStart_toEndOf="@+id/tvFeedtextView"
+                card_view:layout_constraintTop_toTopOf="@+id/tvPhotoCount" />
+
+            <TextView
                 android:id="@+id/tvFeedTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -91,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
                 android:text="500"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -118,7 +147,6 @@
                 android:id="@+id/tvCommentCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
                 android:text="500"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textSize="12dp"

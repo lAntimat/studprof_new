@@ -1,7 +1,10 @@
 package ru.lantimat.studprof.Feeds;
 
+import android.support.v4.content.ContextCompat;
+
 import java.util.ArrayList;
 
+import ru.lantimat.studprof.R;
 import ru.lantimat.studprof.Repository;
 
 /**
@@ -30,6 +33,11 @@ public class FeedPresenter {
                     view.showFeeds(ar);
                     page++;
                     isLoading = false;
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    view.showError(R.string.error_connect + error.getLocalizedMessage());
                 }
             });
         }

@@ -7,4 +7,5 @@ package ru.lantimat.studprof;
 public interface LoadingView {
     void showLoading();
     void hideLoading();
+    void showError(String error);
 }

@@ -33,6 +33,12 @@ public class PhotoPresenter {
                     page++;
                     isLoading = false;
                 }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    view.hideLoading();
+                    view.showError("Ошибка загрузки данных" + error.getLocalizedMessage());
+                }
             });
         }
     }

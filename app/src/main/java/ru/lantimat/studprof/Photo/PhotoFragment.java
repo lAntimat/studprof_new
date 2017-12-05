@@ -110,7 +110,7 @@ public class PhotoFragment extends Fragment implements PhotoView{
         progressBar = v.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-        recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
+        recyclerView = v.findViewById(R.id.recyclerView);
         initRecyclerView();
 
         presenter.loadDate();
@@ -147,6 +147,11 @@ public class PhotoFragment extends Fragment implements PhotoView{
     @Override
     public void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showError(String error) {
+
     }
 
     @Override

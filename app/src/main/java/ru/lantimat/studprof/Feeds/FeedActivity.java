@@ -39,6 +39,8 @@ public class FeedActivity extends MainActivity {
 
         FrameLayout v = (FrameLayout) findViewById(R.id.content_frame); //Remember this is the FrameLayout area within your activity_main.xml
         getLayoutInflater().inflate(R.layout.activity_feeds, v);
+        getSupportActionBar().setTitle("СТУДПРОФ.РФ");
+        //getSupportActionBar().setSubtitle("Новостной молодежный медипортал");
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -47,7 +49,7 @@ public class FeedActivity extends MainActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
-        result.setSelection(2, false);
+        result.setSelection(1, false);
         initViewPager();
     }
 

@@ -161,4 +161,9 @@ public class FeedFragment extends Fragment implements FeedView{
     public void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
     }
+
+    @Override
+    public void showError(String error) {
+
+    }
 }

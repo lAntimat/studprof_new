@@ -31,6 +31,11 @@ public class NewsPresenter {
                     page++;
                     isLoading = false;
                 }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    view.showError("Ошибка загрузки данных" + error.getLocalizedMessage());
+                }
             });
         }
     }

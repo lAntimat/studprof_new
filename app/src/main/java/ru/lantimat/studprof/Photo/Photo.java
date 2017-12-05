@@ -14,8 +14,9 @@ public class Photo {
     private String albumUrl;
     private String countOfPhotos;
     private String countOfVisit;
+    private String countOfComment;
 
-    public Photo(String title, String shortDescription, String mData, ArrayList<String> mImgUrls, String mAlbumUrl, String mCountOfPhotos, String mCountOfVisit) {
+    public Photo(String title, String shortDescription, String mData, ArrayList<String> mImgUrls, String mAlbumUrl, String mCountOfPhotos, String mCountOfVisit, String countOfComment) {
         this.title = title;
         this.subTitle = shortDescription;
         this.data = mData;
@@ -23,6 +24,23 @@ public class Photo {
         this.albumUrl = mAlbumUrl;
         this.countOfPhotos = mCountOfPhotos;
         this.countOfVisit = mCountOfVisit;
+        this.countOfComment = countOfComment;
+    }
+
+    public ArrayList<String> getmImgUrls() {
+        return mImgUrls;
+    }
+
+    public void setmImgUrls(ArrayList<String> mImgUrls) {
+        this.mImgUrls = mImgUrls;
+    }
+
+    public String getCountOfComment() {
+        return countOfComment;
+    }
+
+    public void setCountOfComment(String countOfComment) {
+        this.countOfComment = countOfComment;
     }
 
     public String getTitle() {

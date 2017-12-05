@@ -35,14 +35,18 @@ public class Repository {
 
     public interface FeedCallback {
         void onSuccess(ArrayList<Feed> ar);
+        void onFailure(Throwable error);
     }
 
     public interface NewsCallback {
         void onSuccess(ArrayList<News> ar);
+        void onFailure(Throwable error);
     }
 
     public interface PhotosCallback {
         void onSuccess(ArrayList<Photo> ar);
+        void onFailure(Throwable error);
+
     }
 
     public static void getFeeds(int page, final FeedCallback callback) {
@@ -88,7 +92,7 @@ public class Repository {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                callback.onFailure(error);
             }
         });
     }
@@ -240,12 +244,15 @@ public class Repository {
                 Elements textRow = listItemRow.get(i).select("div.tbg.photo-item-description");
                 Elements shortDescribe = textRow.select("p");
                 String shortDescString = "";
-                if (shortDescribe.size() > 0) shortDescString = shortDescribe.toString();
+                if (shortDescribe.size() > 0) {
+                    shortDescString = shortDescribe.get(0).text();
+                    if(!shortDescribe.select("em").isEmpty()) shortDescString += "\n\n" + shortDescribe.select("em").get(0).text();
+                }
                 String date = textRow.select("span").get(0).text();
                 String visitCount = textRow.select("span").get(3).text();
                 String photosCount = textRow.select("span").get(1).text();
                 String commentsCount = textRow.select("span").get(2).text();
-                String photoAlbumUrl = listItemRow.get(i).select("a[href]").text();
+                String photoAlbumUrl = listItemRow.get(i).select("a").attr("href");
 
                 ArrayList<String> arImages = new ArrayList<>();
                 Elements images = listItemRow.get(i).select("div.row").select("div").select("img");
@@ -254,7 +261,7 @@ public class Repository {
                 }
 
                 arPhoto.add(new Photo(title, shortDescString, date,
-                        arImages, photoAlbumUrl, photosCount, visitCount));
+                        arImages, photoAlbumUrl, photosCount, visitCount, commentsCount));
             }
 
             callback.onSuccess(arPhoto);

@@ -148,6 +148,11 @@ public class NewsFragment extends Fragment implements NewsView{
     }
 
     @Override
+    public void showError(String error) {
+
+    }
+
+    @Override
     public void showNews(ArrayList<News> ar) {
         arNews.clear();
         arNews.addAll(ar);

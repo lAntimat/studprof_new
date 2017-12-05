@@ -48,6 +48,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         ArrayList<String> images = mList.get(position).getImgUrls();
         String url = mList.get(position).getAlbumUrl();
         String countOfVisit = mList.get(position).getCountOfVisit();
+        String countOfComments= mList.get(position).getCountOfComment();
         String countOfPhotos = mList.get(position).getCountOfPhotos();
 
         ArrayList<ImageView> arImageView = new ArrayList<>();
@@ -66,6 +67,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         ((NormalFeedViewHolder) holder).date.setText(date);
         ((NormalFeedViewHolder) holder).visitCount.setText(countOfPhotos);
         ((NormalFeedViewHolder) holder).photosCount.setText(countOfVisit);
+        ((NormalFeedViewHolder) holder).commentCount.setText(countOfComments);
 
         for (int i = 0; i < 8 ; i++) {
             Picasso.with(context).load(images.get(i)).fit().placeholder(R.drawable.studprofoper).into(arImageView.get(i));
@@ -92,6 +94,7 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         private TextView date;
         private TextView visitCount;
         private TextView photosCount;
+        private TextView commentCount;
         private ImageView imageView1;
         private ImageView imageView2;
         private ImageView imageView3;
@@ -107,7 +110,8 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
             subTitle = (TextView) itemView.findViewById(R.id.tvFeedSupportingText);
             date = (TextView) itemView.findViewById(R.id.tvFeedtextView);
             visitCount = (TextView) itemView.findViewById(R.id.tvVisitCount);
-            photosCount = (TextView) itemView.findViewById(R.id.tvCommentCount);
+            photosCount = (TextView) itemView.findViewById(R.id.tvPhotoCount);
+            commentCount = (TextView) itemView.findViewById(R.id.tvCommentCount);
             imageView1 = (ImageView) itemView.findViewById(R.id.imageView1);
             imageView2 = (ImageView) itemView.findViewById(R.id.imageView2);
             imageView3 = (ImageView) itemView.findViewById(R.id.imageView3);
