@@ -13,6 +13,6 @@ public interface PhotoView extends LoadingView {
 
     void showPhotos(ArrayList<Photo> ar);
 
-    void startPhotoGalleryActivity(String url, String img);
+    void startPhotoGalleryActivity(String url);
 
 }

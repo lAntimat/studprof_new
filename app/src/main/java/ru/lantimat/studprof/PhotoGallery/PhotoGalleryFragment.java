@@ -1,4 +1,4 @@
-package ru.lantimat.studprof.Photo;
+package ru.lantimat.studprof.PhotoGallery;
 
 /**
  * Created by GabdrakhmanovII on 04.09.2017.
@@ -7,6 +7,7 @@ package ru.lantimat.studprof.Photo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -19,37 +20,36 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import ru.lantimat.studprof.Feeds.Feed;
-import ru.lantimat.studprof.Feeds.FeedPresenter;
-import ru.lantimat.studprof.Feeds.FeedView;
-import ru.lantimat.studprof.Feeds.FeedsRecyclerAdapter;
 import ru.lantimat.studprof.FullFeeds.FullFeedsActivity;
 import ru.lantimat.studprof.ItemClickSupport;
-import ru.lantimat.studprof.PhotoGallery.PhotoGalleryActivity;
+import ru.lantimat.studprof.Photo.Photo;
+import ru.lantimat.studprof.Photo.PhotoPresenter;
+import ru.lantimat.studprof.Photo.PhotoRecyclerAdapter;
+import ru.lantimat.studprof.Photo.PhotoView;
 import ru.lantimat.studprof.R;
 
 
-public class PhotoFragment extends Fragment implements PhotoView{
+public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
 
     private final String ARG_PARAM1 = "param1";
 
     RecyclerView recyclerView;
-    PhotoRecyclerAdapter adapter;
-    ArrayList<Photo> ar;
+    PhotoGalleryRecyclerAdapter adapter;
+    ArrayList<PhotoGalleryItem> ar;
     TextView textView;
     ImageView imageView;
     ProgressBar progressBar;
-    PhotoPresenter presenter;
+    PhotoGalleryPresenter presenter;
+    String url;
 
 
-
-    public PhotoFragment() {
+    public PhotoGalleryFragment() {
         // Required empty public constructor
     }
 
-    public PhotoFragment newInstance() {
+    public PhotoGalleryFragment newInstance() {
 
-        PhotoFragment fragment = new PhotoFragment();
+        PhotoGalleryFragment fragment = new PhotoGalleryFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, 1);
         fragment.setArguments(args);
@@ -66,13 +66,13 @@ public class PhotoFragment extends Fragment implements PhotoView{
         }
 
         ar = new ArrayList<>();
-        adapter = new PhotoRecyclerAdapter(getContext(), ar);
+        adapter = new PhotoGalleryRecyclerAdapter(getContext(), ar);
 
-        presenter = new PhotoPresenter(this);
+        presenter = new PhotoGalleryPresenter(this);
     }
 
     private void initRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), OrientationHelper.VERTICAL, false));
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3, OrientationHelper.VERTICAL, false));
         recyclerView.setAdapter(adapter);
 
 
@@ -88,7 +88,7 @@ public class PhotoFragment extends Fragment implements PhotoView{
                 int itemCount = recyclerView.getAdapter().getItemCount();
 
                 if ((firstVisible + visibleCount + 1) >= itemCount) {
-                    presenter.loadDate();
+                    presenter.loadMore();
                 }
             }
         });
@@ -96,7 +96,6 @@ public class PhotoFragment extends Fragment implements PhotoView{
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                startPhotoGalleryActivity(ar.get(position).getAlbumUrl());
             }
         });
     }
@@ -115,7 +114,8 @@ public class PhotoFragment extends Fragment implements PhotoView{
         recyclerView = v.findViewById(R.id.recyclerView);
         initRecyclerView();
 
-        presenter.loadDate();
+        url = getActivity().getIntent().getStringExtra("url");
+        presenter.loadDate(url);
 
         return v;
     }
@@ -157,16 +157,22 @@ public class PhotoFragment extends Fragment implements PhotoView{
     }
 
     @Override
-    public void showPhotos(ArrayList<Photo> arPhoto) {
+    public void showPhotos(ArrayList<PhotoGalleryItem> arPhoto) {
         ar.clear();
         ar.addAll(arPhoto);
         adapter.notifyDataSetChanged();
     }
 
     @Override
-    public void startPhotoGalleryActivity(String url) {
-        Intent intent = new Intent(getContext(), PhotoGalleryActivity.class);
+    public void openFullSizePhoto(String url, String img) {
+        Intent intent = new Intent(getContext(), FullFeedsActivity.class);
         intent.putExtra("url", url);
+        intent.putExtra("img", img);
         startActivity(intent);
+    }
+
+    @Override
+    public void setLoadedCount(int loadedCount, int size) {
+        ((PhotoGalleryActivity) getActivity()).toolbar.setSubtitle(loadedCount + "/" + size);
     }
 }

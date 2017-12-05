@@ -1,5 +1,13 @@
 package ru.lantimat.studprof;
 
+import android.app.Activity;
+import android.content.Context;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.jsoup.Jsoup;
@@ -13,6 +21,7 @@ import cz.msebera.android.httpclient.Header;
 import ru.lantimat.studprof.Feeds.Feed;
 import ru.lantimat.studprof.Feeds.News;
 import ru.lantimat.studprof.Photo.Photo;
+import ru.lantimat.studprof.PhotoGallery.PhotoGalleryItem;
 
 import static ru.lantimat.studprof.SpRestClient.urlStudProf;
 
@@ -22,29 +31,54 @@ import static ru.lantimat.studprof.SpRestClient.urlStudProf;
 
 public class Repository {
 
-    public static String urlFeed = "/feed/index/?page=";
-    public static String urlNews = "/news/index/?page=";
-    public static String urlPhoto = "/photo/index/?page=";
-    static int feedPage;
-    static int newsPage;
-    static int photosPage;
+    public static Context context;
+    public static Activity activity;
+    private PhotoGalleryCallback photoGalleryCallback;
+    private static WebView webView;
+    private static String urlFeed = "/feed/index/?page=";
+    private static String urlNews = "/news/index/?page=";
+    private static String urlPhoto = "/photo/index/?page=";
+    private static int feedPage;
+    private static int newsPage;
+    private static int photosPage;
+
+    private static int gallerySize;
 
     static ArrayList<Feed> arFeed = new ArrayList<>();
     static ArrayList<News> arNews = new ArrayList<>();
     static ArrayList<Photo> arPhoto = new ArrayList<>();
+    static ArrayList<PhotoGalleryItem> arPhotoGallery = new ArrayList<>();
+
+    public static void setContext(Context mContext) {
+        context = mContext;
+    }
+
+    public static void setActivity(Activity mActivity) {
+        activity = mActivity;
+    }
 
     public interface FeedCallback {
         void onSuccess(ArrayList<Feed> ar);
+
         void onFailure(Throwable error);
     }
 
     public interface NewsCallback {
         void onSuccess(ArrayList<News> ar);
+
         void onFailure(Throwable error);
     }
 
     public interface PhotosCallback {
         void onSuccess(ArrayList<Photo> ar);
+
+        void onFailure(Throwable error);
+
+    }
+
+    public interface PhotoGalleryCallback {
+        void onSuccess(ArrayList<PhotoGalleryItem> ar);
+        void loadCount(int loaded, int size);
         void onFailure(Throwable error);
 
     }
@@ -88,6 +122,22 @@ public class Repository {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 parsePhotos(responseBody, callback);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                callback.onFailure(error);
+            }
+        });
+    }
+
+    public static void getPhotoGallery(String url, final PhotoGalleryCallback callback) {
+        if (!url.contains("load") & arPhotoGallery.size() == 0) arPhotoGallery.clear();
+        if (arPhotoGallery.size() > 0) url = "/photo/load/?id=2863&from=" + arPhotoGallery.size();
+        SpRestClient.get(url, null, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                //parsePhotoGallery(responseBody, callback);
             }
 
             @Override
@@ -246,7 +296,8 @@ public class Repository {
                 String shortDescString = "";
                 if (shortDescribe.size() > 0) {
                     shortDescString = shortDescribe.get(0).text();
-                    if(!shortDescribe.select("em").isEmpty()) shortDescString += "\n\n" + shortDescribe.select("em").get(0).text();
+                    if (!shortDescribe.select("em").isEmpty())
+                        shortDescString += "\n\n" + shortDescribe.select("em").get(0).text();
                 }
                 String date = textRow.select("span").get(0).text();
                 String visitCount = textRow.select("span").get(3).text();
@@ -268,6 +319,97 @@ public class Repository {
 
         }
 
+    }
+
+    private static void parsePhotoGallery(Document doc, final PhotoGalleryCallback callback) {
+        //Document doc = null;//Здесь хранится будет разобранный html документ
+        try {
+
+        //    String str = new String(bytes, "utf-8");
+            //doc = Jsoup.parse(str);
+        } catch (Exception e) {
+            //Если не получилось считать
+            e.printStackTrace();
+
+        }
+
+        //Если всё считалось, что вытаскиваем из считанного html документа заголовок
+        if (doc != null) {
+            arPhotoGallery.clear();
+            Elements titleRow = doc.select("div.pull-right.list-item-icons");
+            gallerySize = Integer.parseInt(titleRow.select("span").get(0).text());
+
+            Elements listItemRow = doc.select("div.report-photos").select("a");
+            for (int i = 0; i < listItemRow.size(); i++) {
+
+                String imgUrl = listItemRow.get(i).select("img").attr("src");
+                String imgUrlBig = imgUrl.replace("_min", "");
+
+                arPhotoGallery.add(new PhotoGalleryItem(imgUrl, imgUrlBig));
+            }
+
+                    callback.onSuccess(arPhotoGallery);
+            callback.loadCount(arPhotoGallery.size(), gallerySize);
+        }
+
+    }
+
+    public static void webViewGetImages(String url, PhotoGalleryCallback callback){
+        webView = new WebView(context);
+        //webView.setWebViewClient(new MeWebViewClient());
+        webView.getSettings().setLoadsImagesAutomatically(false);
+        webView.getSettings().setJavaScriptEnabled(true);
+
+        MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(callback);
+        webView.addJavascriptInterface(myJavaScriptInterface, "HtmlHandler");
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(webView, url);
+                //webView.loadUrl("javascript:(function(){loadPhotos().click();})()");
+                webView.loadUrl("javascript:window.HtmlHandler.handleHtml" +
+                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                //parseFeed();
+            }
+        });
+
+        webView.loadUrl(urlStudProf + url);
+    }
+
+    public static void webViewGetMore() {
+
+        if(arPhotoGallery.size() < gallerySize) {
+            webView.loadUrl("javascript:(function(){loadPhotos().click();})()");
+            webView.loadUrl("javascript:window.HtmlHandler.handleHtml" +
+                    "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+        }
+    }
+
+    public static class MyJavaScriptInterface {
+
+        static PhotoGalleryCallback callback;
+        public MyJavaScriptInterface(PhotoGalleryCallback mCallback) {
+            callback = mCallback;
+        }
+
+        @JavascriptInterface
+        public void handleHtml(String html) {
+            arPhotoGallery.clear();
+            // Use jsoup on this String here to search for your content.
+            final Document doc = Jsoup.parse(html);
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    parsePhotoGallery(doc, callback);
+                }
+            });
+        }
     }
 
 

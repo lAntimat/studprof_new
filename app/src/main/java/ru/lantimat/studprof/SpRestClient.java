@@ -52,6 +52,7 @@ public class SpRestClient {
     public static void clearCookie() {
         myCookieStore.clear();
     }
+
     public static PersistentCookieStore getCookieStore() {
         return myCookieStore;
     }
