@@ -26,12 +26,12 @@ import java.util.ArrayList;
 
 import ru.lantimat.studprof.R;
 
-public class FullScreenImageAdapter extends PagerAdapter {
+public class FullscreenImageAdapter extends PagerAdapter {
 
     public static int fullScreenImagePosition;
 
-    private Activity _activity;
-    private ArrayList<String> _imageUrl;
+    private Context context;
+    private ArrayList<PhotoGalleryItem> ar;
     //private ImagesArrayList _imagesArrayList;
     private LayoutInflater inflater;
     private TextView _textView;
@@ -40,16 +40,15 @@ public class FullScreenImageAdapter extends PagerAdapter {
     final String TAG = "FullScreenImageAdapter";
 
     // constructor
-    public FullScreenImageAdapter(Activity activity, ArrayList imageUrl, TextView textView, ProgressBar progressBar) {
-        this._activity = activity;
-        this._imageUrl = imageUrl;
-        this._textView = textView;
-        this._progressBar = progressBar;
+    public FullscreenImageAdapter(Context context, ArrayList<PhotoGalleryItem> ar) {
+        this.context = context;
+        this.ar = ar;
+
     }
 
     @Override
     public int getCount() {
-        return this._imageUrl.size();
+        return this.ar.size();
     }
 
     @Override
@@ -64,7 +63,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
 
         fullScreenImagePosition = position;
 
-        inflater = (LayoutInflater) _activity
+        inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewLayout = inflater.inflate(R.layout.viewpager_item_image, container,
                 false);
@@ -73,13 +72,13 @@ public class FullScreenImageAdapter extends PagerAdapter {
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
 
 
-        Uri uri = Uri.parse(_imageUrl.get(position));
-        Picasso.with(_activity.getApplicationContext())
+        Uri uri = Uri.parse(ar.get(position).getPhotoBigSizeUrl());
+        Picasso.with(context)
                 .load(uri)
                 .into(imgDisplay, new Callback() {
                     @Override
                     public void onSuccess() {
-                        _progressBar.setVisibility(View.GONE);
+                        //_progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -95,7 +94,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                _activity.finish();
+                //_activity.finish();
             }
         });
 

@@ -6,6 +6,7 @@ package ru.lantimat.studprof.PhotoGallery;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,21 +18,22 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ru.lantimat.studprof.R;
+import ru.lantimat.studprof.Utils.WrapContentViewPager;
 
 
-public class FragmentFullscreenImage extends Fragment{
+public class FragmentFullscreenImage extends Fragment implements PhotoGalleryFragment.FullSizeImageView{
 
     private final String ARG_PARAM1 = "param1";
 
     RecyclerView recyclerView;
-    PhotoGalleryRecyclerAdapter adapter;
+    FullscreenImageAdapter adapter;
     ArrayList<PhotoGalleryItem> ar;
     TextView textView;
     ImageView imageView;
     ProgressBar progressBar;
     PhotoGalleryPresenter presenter;
     String url;
-
+    WrapContentViewPager viewPager;
 
     public FragmentFullscreenImage() {
         // Required empty public constructor
@@ -55,20 +57,24 @@ public class FragmentFullscreenImage extends Fragment{
             getArguments().getInt(ARG_PARAM1);
         }
 
+        ((PhotoGalleryActivity) getActivity()).photoGalleryFragment.registerView(this);
         ar = new ArrayList<>();
-        adapter = new PhotoGalleryRecyclerAdapter(getContext(), ar);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_photo_gallery, null);
+        View v = inflater.inflate(R.layout.fragment_photo_full_size, null);
 
         textView = v.findViewById(R.id.textView);
         imageView = v.findViewById(R.id.imageView);
         progressBar = v.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+
+        adapter = new FullscreenImageAdapter(getContext(), ar);
+        viewPager = v.findViewById(R.id.viewPager);
+        viewPager.setAdapter(adapter);
 
         url = getActivity().getIntent().getStringExtra("url");
 
@@ -96,4 +102,10 @@ public class FragmentFullscreenImage extends Fragment{
         super.onDestroyView();
     }
 
+    @Override
+    public void onAdd(ArrayList<PhotoGalleryItem> ar) {
+        this.ar.clear();
+        this.ar.addAll(ar);
+        adapter.notifyDataSetChanged();
+    }
 }

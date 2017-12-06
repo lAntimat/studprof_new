@@ -13,7 +13,7 @@ public interface PhotoGalleryView extends LoadingView {
 
     void showPhotos(ArrayList<PhotoGalleryItem> arPhotos);
 
-    void openFullSizePhoto(String url, String img);
+    void openFullSizePhoto();
 
     void setLoadedCount(int loadedCount, int size);
 

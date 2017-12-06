@@ -42,6 +42,7 @@ public class Repository {
     private static int newsPage;
     private static int photosPage;
 
+    private static boolean isLoading = false;
     private static int gallerySize;
 
     static ArrayList<Feed> arFeed = new ArrayList<>();
@@ -347,9 +348,15 @@ public class Repository {
 
                 arPhotoGallery.add(new PhotoGalleryItem(imgUrl, imgUrlBig));
             }
-
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
                     callback.onSuccess(arPhotoGallery);
-            callback.loadCount(arPhotoGallery.size(), gallerySize);
+                    if(arPhotoGallery.size() != 0) callback.loadCount(arPhotoGallery.size(), gallerySize);
+                    isLoading = false;
+                }
+            });
+
         }
 
     }
@@ -385,6 +392,7 @@ public class Repository {
     public static void webViewGetMore() {
 
         if(arPhotoGallery.size() < gallerySize) {
+            isLoading = true;
             webView.loadUrl("javascript:(function(){loadPhotos().click();})()");
             webView.loadUrl("javascript:window.HtmlHandler.handleHtml" +
                     "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
@@ -403,12 +411,8 @@ public class Repository {
             arPhotoGallery.clear();
             // Use jsoup on this String here to search for your content.
             final Document doc = Jsoup.parse(html);
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    parsePhotoGallery(doc, callback);
-                }
-            });
+            parsePhotoGallery(doc, callback);
+
         }
     }
 

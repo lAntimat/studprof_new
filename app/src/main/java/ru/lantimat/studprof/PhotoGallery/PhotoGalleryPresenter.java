@@ -17,6 +17,7 @@ public class PhotoGalleryPresenter {
     private Repository repository;
     private int page = 1;
     private boolean isLoading = false;
+    private boolean isNoMore = false;
     private String loadMoreUrl = Constants.urlStudProf;
 
     public PhotoGalleryPresenter(PhotoGalleryView view) {
@@ -39,11 +40,14 @@ public class PhotoGalleryPresenter {
 
                 @Override
                 public void loadCount(int loaded, int size) {
+                    if(loaded >= size) isNoMore = true;
+                    else isNoMore = false;
                     view.setLoadedCount(loaded, size);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
+                    isLoading = false;
                     view.hideLoading();
                     view.showError("Ошибка загрузки данных" + error.getLocalizedMessage());
                 }
@@ -52,7 +56,9 @@ public class PhotoGalleryPresenter {
     }
 
     public void loadMore() {
-        view.showToolbarLoading();
-        Repository.webViewGetMore();
+        if(!isLoading & !isNoMore) {
+            view.showToolbarLoading();
+            Repository.webViewGetMore();
+        }
     }
 }

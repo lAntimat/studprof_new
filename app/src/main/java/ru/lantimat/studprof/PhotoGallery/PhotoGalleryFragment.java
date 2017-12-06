@@ -7,6 +7,7 @@ package ru.lantimat.studprof.PhotoGallery;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
@@ -29,7 +30,7 @@ import ru.lantimat.studprof.Photo.PhotoView;
 import ru.lantimat.studprof.R;
 
 
-public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
+public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
 
     private final String ARG_PARAM1 = "param1";
 
@@ -57,6 +58,16 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
         return fragment;
     }
 
+    FullSizeImageView fullSizeImageView;
+
+    public interface FullSizeImageView {
+        void onAdd(ArrayList<PhotoGalleryItem> ar);
+    }
+
+    public void registerView(FullSizeImageView view) {
+        fullSizeImageView = view;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +84,8 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
 
     private void initRecyclerView() {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3, OrientationHelper.VERTICAL, false));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(1024);
         recyclerView.setAdapter(adapter);
 
 
@@ -81,13 +94,13 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
 
                 int firstVisible = layoutManager.findFirstVisibleItemPosition();
                 int visibleCount = Math.abs(firstVisible - layoutManager.findLastVisibleItemPosition());
                 int itemCount = recyclerView.getAdapter().getItemCount();
 
-                if ((firstVisible + visibleCount + 1) >= itemCount) {
+                if ((firstVisible + visibleCount + 6) >= itemCount) {
                     presenter.loadMore();
                 }
             }
@@ -96,6 +109,9 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                if (getFragmentManager().getBackStackEntryCount() == 0) openFullSizePhoto();
+                if (fullSizeImageView != null) fullSizeImageView.onAdd(ar);
+
             }
         });
     }
@@ -159,17 +175,24 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
 
     @Override
     public void showPhotos(ArrayList<PhotoGalleryItem> arPhoto) {
-        ar.clear();
-        ar.addAll(arPhoto);
-        adapter.notifyDataSetChanged();
+        //ar.clear();
+        //ar.addAll(arPhoto);
+        for (int i = ar.size(); i < arPhoto.size(); i++) {
+            ar.add(arPhoto.get(i));
+            adapter.notifyItemInserted(i);
+            if (fullSizeImageView != null) fullSizeImageView.onAdd(ar);
+        }
     }
 
     @Override
-    public void openFullSizePhoto(String url, String img) {
-        Intent intent = new Intent(getContext(), FullFeedsActivity.class);
-        intent.putExtra("url", url);
-        intent.putExtra("img", img);
-        startActivity(intent);
+    public void openFullSizePhoto() {
+        FragmentFullscreenImage fragmentFullscreenImage = new FragmentFullscreenImage();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .add(R.id.content_frame, fragmentFullscreenImage)
+                .addToBackStack("list")
+                .commit();
     }
 
     @Override

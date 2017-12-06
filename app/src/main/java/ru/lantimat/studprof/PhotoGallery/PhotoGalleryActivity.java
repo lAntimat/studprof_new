@@ -29,10 +29,13 @@ public class PhotoGalleryActivity extends AppCompatActivity {
 
     //private Toolbar toolbar;
     private TabLayout tabLayout;
-    private ViewPager viewPager;
+    public ViewPager viewPager;
     ViewPagerAdapter adapter;
     Toolbar toolbar;
     ProgressBar progressBar;
+
+    public PhotoGalleryFragment photoGalleryFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
@@ -83,7 +86,8 @@ public class PhotoGalleryActivity extends AppCompatActivity {
 
 
     public void initViewPager() {
-        adapter.addFragment(new PhotoGalleryFragment(), "Фото");
+        photoGalleryFragment = new PhotoGalleryFragment();
+        adapter.addFragment(photoGalleryFragment, "Фото");
         adapter.notifyDataSetChanged();
     }
 

@@ -43,7 +43,7 @@ public class PhotoGalleryRecyclerAdapter extends RecyclerView.Adapter<RecyclerVi
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         String img = mList.get(position).getPhotoUrl();
-        Picasso.with(context).load(img).fit().placeholder(R.drawable.studprofoper).into(((NormalViewHolder) holder).img);
+        Picasso.with(context).load(img).fit().centerCrop().placeholder(R.drawable.studprofoper).into(((NormalViewHolder) holder).img);
 
     }
 
