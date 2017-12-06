@@ -6,9 +6,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +23,7 @@ import ru.lantimat.studprof.R;
 import ru.lantimat.studprof.Repository;
 
 
-public class PhotoGalleryActivity extends MainActivity {
+public class PhotoGalleryActivity extends AppCompatActivity {
 
        //Spinner spinner;
 
@@ -27,17 +31,27 @@ public class PhotoGalleryActivity extends MainActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     ViewPagerAdapter adapter;
-
+    Toolbar toolbar;
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_schedule);
+        setContentView(R.layout.activity_photo_gallery);
 
-        FrameLayout v = (FrameLayout) findViewById(R.id.content_frame); //Remember this is the FrameLayout area within your activity_main.xml
-        getLayoutInflater().inflate(R.layout.activity_photo, v);
-        getSupportActionBar().setTitle("Фото");
+        //FrameLayout v = (FrameLayout) findViewById(R.id.content_frame); //Remember this is the FrameLayout area within your activity_main.xml
+        //getLayoutInflater().inflate(R.layout.activity_photo, v);
+
+        toolbar =  findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Фотогалерея");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         Repository.setActivity(this);
+
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -46,7 +60,6 @@ public class PhotoGalleryActivity extends MainActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         //tabLayout.setupWithViewPager(viewPager);
 
-        result.setSelection(2, false);
         initViewPager();
     }
 
@@ -70,9 +83,6 @@ public class PhotoGalleryActivity extends MainActivity {
 
 
     public void initViewPager() {
-        viewPager.setOffscreenPageLimit(7);
-
-        //viewPager.setCurrentItem(dayOfWeek, true);
         adapter.addFragment(new PhotoGalleryFragment(), "Фото");
         adapter.notifyDataSetChanged();
     }

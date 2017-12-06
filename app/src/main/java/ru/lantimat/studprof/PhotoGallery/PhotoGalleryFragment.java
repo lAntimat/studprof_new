@@ -104,7 +104,7 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_feeds, null);
+        View v = inflater.inflate(R.layout.fragment_photo_gallery, null);
 
         textView = v.findViewById(R.id.textView);
         imageView = v.findViewById(R.id.imageView);
@@ -149,6 +149,7 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
     @Override
     public void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
+        ((PhotoGalleryActivity) getActivity()).progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -174,5 +175,11 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView{
     @Override
     public void setLoadedCount(int loadedCount, int size) {
         ((PhotoGalleryActivity) getActivity()).toolbar.setSubtitle(loadedCount + "/" + size);
+    }
+
+    @Override
+    public void showToolbarLoading() {
+        ((PhotoGalleryActivity) getActivity()).progressBar.setVisibility(View.VISIBLE);
+
     }
 }

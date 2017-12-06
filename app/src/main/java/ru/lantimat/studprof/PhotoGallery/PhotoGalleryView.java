@@ -17,4 +17,5 @@ public interface PhotoGalleryView extends LoadingView {
 
     void setLoadedCount(int loadedCount, int size);
 
+    void showToolbarLoading();
 }

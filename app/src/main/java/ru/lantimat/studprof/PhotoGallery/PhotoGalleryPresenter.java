@@ -52,6 +52,7 @@ public class PhotoGalleryPresenter {
     }
 
     public void loadMore() {
+        view.showToolbarLoading();
         Repository.webViewGetMore();
     }
 }
