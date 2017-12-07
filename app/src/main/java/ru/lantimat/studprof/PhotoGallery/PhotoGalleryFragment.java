@@ -4,33 +4,29 @@ package ru.lantimat.studprof.PhotoGallery;
  * Created by GabdrakhmanovII on 04.09.2017.
  */
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import ru.lantimat.studprof.FullFeeds.FullFeedsActivity;
 import ru.lantimat.studprof.ItemClickSupport;
-import ru.lantimat.studprof.Photo.Photo;
-import ru.lantimat.studprof.Photo.PhotoPresenter;
-import ru.lantimat.studprof.Photo.PhotoRecyclerAdapter;
-import ru.lantimat.studprof.Photo.PhotoView;
 import ru.lantimat.studprof.R;
 
 
-public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
+public class PhotoGalleryFragment extends Fragment implements PhotoGalleryActivity.FragmentPhotoGalleryListener {
 
     private final String ARG_PARAM1 = "param1";
 
@@ -42,7 +38,9 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
     ProgressBar progressBar;
     PhotoGalleryPresenter presenter;
     String url;
-
+    FrameLayout contentFrame;
+    private boolean isLoading;
+    public FragmentFullscreenImage fragmentFullscreenImage;
 
     public PhotoGalleryFragment() {
         // Required empty public constructor
@@ -58,15 +56,7 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
         return fragment;
     }
 
-    FullSizeImageView fullSizeImageView;
 
-    public interface FullSizeImageView {
-        void onAdd(ArrayList<PhotoGalleryItem> ar);
-    }
-
-    public void registerView(FullSizeImageView view) {
-        fullSizeImageView = view;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,8 +68,8 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
 
         ar = new ArrayList<>();
         adapter = new PhotoGalleryRecyclerAdapter(getContext(), ar);
-
-        presenter = new PhotoGalleryPresenter(this);
+        presenter = ((PhotoGalleryActivity) getActivity()).presenter;
+        ((PhotoGalleryActivity) getActivity()).registerPhotoGalleryListener(this);
     }
 
     private void initRecyclerView() {
@@ -100,17 +90,19 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
                 int visibleCount = Math.abs(firstVisible - layoutManager.findLastVisibleItemPosition());
                 int itemCount = recyclerView.getAdapter().getItemCount();
 
-                if ((firstVisible + visibleCount + 6) >= itemCount) {
+                if ((firstVisible + visibleCount + 6) >= itemCount & !isLoading) {
+                    isLoading = true;
                     presenter.loadMore();
                 }
             }
         });
 
+
+
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                if (getFragmentManager().getBackStackEntryCount() == 0) openFullSizePhoto();
-                if (fullSizeImageView != null) fullSizeImageView.onAdd(ar);
+                presenter.openFullSizeImage(position, ar);
 
             }
         });
@@ -127,15 +119,36 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
         progressBar = v.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
+        contentFrame = v.findViewById(R.id.content_frame);
+        //contentFrame.setVisibility(View.INVISIBLE);
         recyclerView = v.findViewById(R.id.recyclerView);
         initRecyclerView();
 
-        url = getActivity().getIntent().getStringExtra("url");
-        presenter.loadDate(url);
+        //url = getActivity().getIntent().getStringExtra("url");
+        //presenter.loadDate(url);
+
+        //|initFullsizeFragment();
 
         return v;
     }
 
+    private void initFullsizeFragment() {
+        fragmentFullscreenImage = new FragmentFullscreenImage();
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .add(R.id.content_frame, fragmentFullscreenImage)
+                .addToBackStack("list")
+                .commit();
+        //FragmentTransaction ft = getFragmentManager().beginTransaction();
+        //ft.hide(fragmentFullscreenImage);
+    }
+
+    public void hideFragment() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.hide(fragmentFullscreenImage);
+        //contentFrame.setVisibility(View.INVISIBLE);
+    }
 
     private void emptyPic() {
         if (ar.size() == 0) {
@@ -166,6 +179,7 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
     public void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
         ((PhotoGalleryActivity) getActivity()).progressBar.setVisibility(View.INVISIBLE);
+        isLoading = false;
     }
 
     @Override
@@ -175,24 +189,23 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
 
     @Override
     public void showPhotos(ArrayList<PhotoGalleryItem> arPhoto) {
-        //ar.clear();
-        //ar.addAll(arPhoto);
-        for (int i = ar.size(); i < arPhoto.size(); i++) {
-            ar.add(arPhoto.get(i));
-            adapter.notifyItemInserted(i);
-            if (fullSizeImageView != null) fullSizeImageView.onAdd(ar);
-        }
+        ar.clear();
+        ar.addAll(arPhoto);
+        adapter.notifyDataSetChanged();
+
+        Log.d("PhotoGallery", "showPhotos");
+        /*if(arPhoto.size() > 0) {
+            for (int i = ar.size(); i < arPhoto.size(); i++) {
+                ar.add(arPhoto.get(i));
+                //adapter.notifyItemInserted(i);
+            }
+            adapter.notifyDataSetChanged();
+        }*/
     }
 
     @Override
-    public void openFullSizePhoto() {
-        FragmentFullscreenImage fragmentFullscreenImage = new FragmentFullscreenImage();
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        fm.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .add(R.id.content_frame, fragmentFullscreenImage)
-                .addToBackStack("list")
-                .commit();
+    public void openFullSizePhoto(int position) {
+
     }
 
     @Override
@@ -201,8 +214,12 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryView {
     }
 
     @Override
-    public void showToolbarLoading() {
-        ((PhotoGalleryActivity) getActivity()).progressBar.setVisibility(View.VISIBLE);
+    public void onAdd(ArrayList<PhotoGalleryItem> ar) {
+
+    }
+
+    @Override
+    public void setPosition(int position) {
 
     }
 }

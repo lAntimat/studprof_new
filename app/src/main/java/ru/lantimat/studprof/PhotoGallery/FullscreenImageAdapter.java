@@ -6,6 +6,7 @@ package ru.lantimat.studprof.PhotoGallery;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -17,13 +18,19 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.chrisbanes.photoview.OnScaleChangedListener;
 import com.github.chrisbanes.photoview.PhotoView;
+import com.github.chuross.flinglayout.FlingLayout;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function3;
 import ru.lantimat.studprof.R;
 
 public class FullscreenImageAdapter extends PagerAdapter {
@@ -67,7 +74,33 @@ public class FullscreenImageAdapter extends PagerAdapter {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View viewLayout = inflater.inflate(R.layout.viewpager_item_image, container,
                 false);
+        final FlingLayout flingLayout = viewLayout.findViewById(R.id.fling_layout);
+        flingLayout.setBackgroundColor(Color.BLACK);
+
+        flingLayout.setDismissListener(new Function0<Unit>() {
+            @Override
+            public Unit invoke() {
+                Toast.makeText(context, "dismiss!!", Toast.LENGTH_LONG).show();
+                ((PhotoGalleryActivity) context).onBackPressed();
+                return Unit.INSTANCE;
+            }
+        });
+        flingLayout.setPositionChangeListener(new Function3<Integer, Integer, Float, Unit>() {
+            @Override
+            public Unit invoke(Integer top, Integer left, Float dragRangeRate) {
+                flingLayout.setBackgroundColor(Color.argb(Math.round(255 * (1.0F - dragRangeRate)), 0, 0, 0));
+                return Unit.INSTANCE;
+            }
+        });
+
         imgDisplay = viewLayout.findViewById(R.id.photo_view);
+
+        imgDisplay.setOnScaleChangeListener(new OnScaleChangedListener() {
+            @Override
+            public void onScaleChange(float scaleFactor, float focusX, float focusY) {
+                flingLayout.setDragEnabled(scaleFactor <= 1F);
+            }
+        });
 
         btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
 

@@ -5,6 +5,7 @@ package ru.lantimat.studprof.PhotoGallery;
  */
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
@@ -21,9 +22,9 @@ import ru.lantimat.studprof.R;
 import ru.lantimat.studprof.Utils.WrapContentViewPager;
 
 
-public class FragmentFullscreenImage extends Fragment implements PhotoGalleryFragment.FullSizeImageView{
+public class FragmentFullscreenImage extends Fragment implements PhotoGalleryActivity.FragmentFullSizeImageListener {
 
-    private final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM1 = "param1";
 
     RecyclerView recyclerView;
     FullscreenImageAdapter adapter;
@@ -39,13 +40,12 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryFra
         // Required empty public constructor
     }
 
-    public FragmentFullscreenImage newInstance() {
+    public static FragmentFullscreenImage newInstance(ArrayList<PhotoGalleryItem> ar) {
 
         FragmentFullscreenImage fragment = new FragmentFullscreenImage();
         Bundle args = new Bundle();
-        args.putInt(ARG_PARAM1, 1);
+        args.putParcelableArrayList(ARG_PARAM1, ar);
         fragment.setArguments(args);
-
         return fragment;
     }
 
@@ -53,12 +53,14 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryFra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ar = new ArrayList<>();
+
         if (getArguments() != null) {
-            getArguments().getInt(ARG_PARAM1);
+            ar = getArguments().getParcelableArrayList(ARG_PARAM1);
         }
 
-        ((PhotoGalleryActivity) getActivity()).photoGalleryFragment.registerView(this);
-        ar = new ArrayList<>();
+        presenter = ((PhotoGalleryActivity) getActivity()).presenter;
+        ((PhotoGalleryActivity) getActivity()).registerFullSizeImageListener(this);
     }
 
     @Override
@@ -107,5 +109,10 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryFra
         this.ar.clear();
         this.ar.addAll(ar);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void setPosition(int position) {
+        viewPager.setCurrentItem(position);
     }
 }

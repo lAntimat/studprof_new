@@ -17,13 +17,14 @@ import android.widget.ProgressBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.lantimat.studprof.LoadingView;
 import ru.lantimat.studprof.MainActivity;
 import ru.lantimat.studprof.Photo.PhotoFragment;
 import ru.lantimat.studprof.R;
 import ru.lantimat.studprof.Repository;
 
 
-public class PhotoGalleryActivity extends AppCompatActivity {
+public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGalleryView {
 
        //Spinner spinner;
 
@@ -33,8 +34,94 @@ public class PhotoGalleryActivity extends AppCompatActivity {
     ViewPagerAdapter adapter;
     Toolbar toolbar;
     ProgressBar progressBar;
-
+    public PhotoGalleryPresenter presenter;
     public PhotoGalleryFragment photoGalleryFragment;
+
+    FragmentPhotoGalleryListener photoGalleryListener;
+    FragmentFullSizeImageListener fullSizeImageListener;
+
+    static FragmentFullscreenImage fragmentFullscreenImage;
+
+    @Override
+    public void showLoading() {
+        if(photoGalleryListener!=null) photoGalleryListener.showLoading();
+    }
+
+    @Override
+    public void hideLoading() {
+        progressBar.setVisibility(View.INVISIBLE);
+        photoGalleryListener.hideLoading();
+    }
+
+    @Override
+    public void showError(String error) {
+
+    }
+
+    @Override
+    public void showPhotos(ArrayList<PhotoGalleryItem> arPhotos) {
+        photoGalleryListener.showPhotos(arPhotos);
+        if(fullSizeImageListener!=null) fullSizeImageListener.onAdd(arPhotos);
+    }
+
+    @Override
+    public void openFullSizePhoto(int position, ArrayList<PhotoGalleryItem> ar) {
+        //viewPager.setCurrentItem(1);
+        initFullsizeFragment(ar);
+        /*if(fullSizeImageListener!=null) {
+            fullSizeImageListener.onAdd(ar);
+            fullSizeImageListener.setPosition(position);
+        }*/
+    }
+
+    @Override
+    public void setLoadedCount(int loadedCount, int size) {
+        photoGalleryListener.setLoadedCount(loadedCount, size);
+    }
+
+    @Override
+    public void showToolbarLoading() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onAdd(ArrayList<PhotoGalleryItem> ar) {
+        fullSizeImageListener.onAdd(ar);
+    }
+
+    @Override
+    public void setPosition(int position) {
+        fullSizeImageListener.setPosition(position);
+    }
+
+    public interface FragmentPhotoGalleryListener extends LoadingView {
+
+        void onAdd(ArrayList<PhotoGalleryItem> ar);
+
+        void setPosition(int position);
+
+        void showPhotos(ArrayList<PhotoGalleryItem> arPhotos);
+
+        void openFullSizePhoto(int position);
+
+        void setLoadedCount(int loadedCount, int size);
+    }
+
+    public void registerPhotoGalleryListener(FragmentPhotoGalleryListener listener) {
+        photoGalleryListener = listener;
+    }
+
+    public interface FragmentFullSizeImageListener {
+
+        void onAdd(ArrayList<PhotoGalleryItem> ar);
+
+        void setPosition(int position);
+    }
+
+    public void registerFullSizeImageListener(FragmentFullSizeImageListener listener) {
+        fullSizeImageListener = listener;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +151,12 @@ public class PhotoGalleryActivity extends AppCompatActivity {
         //tabLayout.setupWithViewPager(viewPager);
 
         initViewPager();
+
+        presenter = new PhotoGalleryPresenter(this);
+
+        String url = getIntent().getStringExtra("url");
+        presenter.loadDate(url);
+
     }
 
     @Override
@@ -84,10 +177,29 @@ public class PhotoGalleryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        //if(getFragmentManager().getBackStackEntryCount() > 0) getFragmentManager().popBackStack();
+        super.onBackPressed();
+    }
+
+    private void initFullsizeFragment(ArrayList<PhotoGalleryItem> ar) {
+        fragmentFullscreenImage = FragmentFullscreenImage.newInstance(ar);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.content_frame, fragmentFullscreenImage)
+                .addToBackStack("list")
+                .commit();
+        //FragmentTransaction ft = getFragmentManager().beginTransaction();
+        //ft.hide(fragmentFullscreenImage);
+    }
 
     public void initViewPager() {
         photoGalleryFragment = new PhotoGalleryFragment();
+
         adapter.addFragment(photoGalleryFragment, "Фото");
+        //adapter.addFragment(new FragmentFullscreenImage(), "FullScreen");
         adapter.notifyDataSetChanged();
     }
 

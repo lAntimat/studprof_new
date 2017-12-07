@@ -61,4 +61,8 @@ public class PhotoGalleryPresenter {
             Repository.webViewGetMore();
         }
     }
+
+    public void openFullSizeImage(int position, ArrayList<PhotoGalleryItem> ar) {
+        view.openFullSizePhoto(position, ar);
+    }
 }

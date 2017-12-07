@@ -13,9 +13,13 @@ public interface PhotoGalleryView extends LoadingView {
 
     void showPhotos(ArrayList<PhotoGalleryItem> arPhotos);
 
-    void openFullSizePhoto();
+    void openFullSizePhoto(int position, ArrayList<PhotoGalleryItem> ar);
 
     void setLoadedCount(int loadedCount, int size);
 
     void showToolbarLoading();
+
+    void onAdd(ArrayList<PhotoGalleryItem> ar);
+
+    void setPosition(int position);
 }
