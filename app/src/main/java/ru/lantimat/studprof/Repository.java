@@ -86,7 +86,7 @@ public class Repository {
 
     public static void getFeeds(int page, final FeedCallback callback) {
         feedPage = page;
-
+        if(page==1) arFeed.clear();
         SpRestClient.get(urlFeed + page, null, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -123,22 +123,6 @@ public class Repository {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 parsePhotos(responseBody, callback);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                callback.onFailure(error);
-            }
-        });
-    }
-
-    public static void getPhotoGallery(String url, final PhotoGalleryCallback callback) {
-        if (!url.contains("load") & arPhotoGallery.size() == 0) arPhotoGallery.clear();
-        if (arPhotoGallery.size() > 0) url = "/photo/load/?id=2863&from=" + arPhotoGallery.size();
-        SpRestClient.get(url, null, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                //parsePhotoGallery(responseBody, callback);
             }
 
             @Override
@@ -344,7 +328,7 @@ public class Repository {
             for (int i = 0; i < listItemRow.size(); i++) {
 
                 String imgUrl = listItemRow.get(i).select("img").attr("src");
-                String imgUrlBig = imgUrl.replace("_min", "");
+                String imgUrlBig = imgUrl.replace("min_", "");
 
                 arPhotoGallery.add(new PhotoGalleryItem(imgUrl, imgUrlBig));
             }

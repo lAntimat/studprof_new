@@ -67,7 +67,7 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
     @Override
     public void openFullSizePhoto(int position, ArrayList<PhotoGalleryItem> ar) {
         //viewPager.setCurrentItem(1);
-        initFullsizeFragment(ar);
+        initFullsizeFragment(position, ar);
         /*if(fullSizeImageListener!=null) {
             fullSizeImageListener.onAdd(ar);
             fullSizeImageListener.setPosition(position);
@@ -183,8 +183,8 @@ public class PhotoGalleryActivity extends AppCompatActivity implements PhotoGall
         super.onBackPressed();
     }
 
-    private void initFullsizeFragment(ArrayList<PhotoGalleryItem> ar) {
-        fragmentFullscreenImage = FragmentFullscreenImage.newInstance(ar);
+    private void initFullsizeFragment(int position, ArrayList<PhotoGalleryItem> ar) {
+        fragmentFullscreenImage = FragmentFullscreenImage.newInstance(position, ar);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)

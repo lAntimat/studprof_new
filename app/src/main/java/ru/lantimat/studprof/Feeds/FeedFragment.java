@@ -7,6 +7,7 @@ package ru.lantimat.studprof.Feeds;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -36,7 +37,7 @@ public class FeedFragment extends Fragment implements FeedView{
     ImageView imageView;
     ProgressBar progressBar;
     FeedPresenter presenter;
-
+    private SwipeRefreshLayout swipeContainer;
 
 
     public FeedFragment() {
@@ -107,6 +108,8 @@ public class FeedFragment extends Fragment implements FeedView{
         imageView = v.findViewById(R.id.imageView);
         progressBar = v.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+        initSwipeRefreshLayout(v);
+
 
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
         initRecyclerView();
@@ -114,6 +117,26 @@ public class FeedFragment extends Fragment implements FeedView{
         presenter.loadDate();
 
         return v;
+    }
+
+    private void initSwipeRefreshLayout(View v) {
+        // Lookup the swipe container view
+        swipeContainer = v.findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                presenter.refreshDate();
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
     }
 
 
@@ -160,6 +183,7 @@ public class FeedFragment extends Fragment implements FeedView{
     @Override
     public void hideLoading() {
         progressBar.setVisibility(View.INVISIBLE);
+        swipeContainer.setRefreshing(false);
     }
 
     @Override

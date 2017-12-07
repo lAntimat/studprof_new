@@ -59,7 +59,7 @@
             <TextView
                 android:id="@+id/tvFeedTitle"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:allowUndo="false"
                 android:ellipsize="end"
                 android:padding="16dp"
@@ -67,7 +67,7 @@
                 android:textSize="16sp"
                 card_view:layout_constraintBottom_toTopOf="@+id/constraintLayout"
                 card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintHorizontal_bias="0.0"
+                card_view:layout_constraintHorizontal_bias="0.1"
                 card_view:layout_constraintStart_toStartOf="parent"
                 tools:text="Title" />
 

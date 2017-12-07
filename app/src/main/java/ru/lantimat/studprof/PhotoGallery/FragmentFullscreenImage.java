@@ -25,6 +25,7 @@ import ru.lantimat.studprof.Utils.WrapContentViewPager;
 public class FragmentFullscreenImage extends Fragment implements PhotoGalleryActivity.FragmentFullSizeImageListener {
 
     private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "position";
 
     RecyclerView recyclerView;
     FullscreenImageAdapter adapter;
@@ -35,16 +36,18 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryAct
     PhotoGalleryPresenter presenter;
     String url;
     WrapContentViewPager viewPager;
+    int viewPagerPosition = 0;
 
     public FragmentFullscreenImage() {
         // Required empty public constructor
     }
 
-    public static FragmentFullscreenImage newInstance(ArrayList<PhotoGalleryItem> ar) {
+    public static FragmentFullscreenImage newInstance(int position, ArrayList<PhotoGalleryItem> ar) {
 
         FragmentFullscreenImage fragment = new FragmentFullscreenImage();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_PARAM1, ar);
+        args.putInt(ARG_PARAM2, position);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,6 +60,7 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryAct
 
         if (getArguments() != null) {
             ar = getArguments().getParcelableArrayList(ARG_PARAM1);
+            viewPagerPosition = getArguments().getInt(ARG_PARAM2);
         }
 
         presenter = ((PhotoGalleryActivity) getActivity()).presenter;
@@ -75,12 +79,36 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryAct
         progressBar.setVisibility(View.INVISIBLE);
 
         adapter = new FullscreenImageAdapter(getContext(), ar);
-        viewPager = v.findViewById(R.id.viewPager);
-        viewPager.setAdapter(adapter);
+        initViewPager(v);
 
         url = getActivity().getIntent().getStringExtra("url");
 
         return v;
+    }
+
+    private void initViewPager(View v) {
+        viewPager = v.findViewById(R.id.viewPager);
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(viewPagerPosition);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                viewPagerPosition = position;
+                textView.setText(position + 1 + "/" + viewPager.getAdapter().getCount());
+                if(position + 3 == viewPager.getAdapter().getCount()) presenter.loadMore();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        textView.setText(viewPagerPosition + 1 + "/" + viewPager.getAdapter().getCount());
     }
 
 
@@ -109,10 +137,12 @@ public class FragmentFullscreenImage extends Fragment implements PhotoGalleryAct
         this.ar.clear();
         this.ar.addAll(ar);
         adapter.notifyDataSetChanged();
+        textView.setText(viewPagerPosition + 1 + "/" + viewPager.getAdapter().getCount());
     }
 
     @Override
     public void setPosition(int position) {
+        viewPagerPosition = position;
         viewPager.setCurrentItem(position);
     }
 }

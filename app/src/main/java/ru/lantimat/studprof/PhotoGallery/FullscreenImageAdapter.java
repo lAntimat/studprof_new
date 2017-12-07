@@ -41,8 +41,8 @@ public class FullscreenImageAdapter extends PagerAdapter {
     private ArrayList<PhotoGalleryItem> ar;
     //private ImagesArrayList _imagesArrayList;
     private LayoutInflater inflater;
-    private TextView _textView;
-    private ProgressBar _progressBar;
+    ProgressBar progressBar;
+    TextView textView;
     Context ctx;
     final String TAG = "FullScreenImageAdapter";
 
@@ -75,7 +75,7 @@ public class FullscreenImageAdapter extends PagerAdapter {
         View viewLayout = inflater.inflate(R.layout.viewpager_item_image, container,
                 false);
         final FlingLayout flingLayout = viewLayout.findViewById(R.id.fling_layout);
-        flingLayout.setBackgroundColor(Color.BLACK);
+        flingLayout.setBackgroundColor(Color.argb(Math.round(230), 0, 0, 0));
 
         flingLayout.setDismissListener(new Function0<Unit>() {
             @Override
@@ -88,7 +88,7 @@ public class FullscreenImageAdapter extends PagerAdapter {
         flingLayout.setPositionChangeListener(new Function3<Integer, Integer, Float, Unit>() {
             @Override
             public Unit invoke(Integer top, Integer left, Float dragRangeRate) {
-                flingLayout.setBackgroundColor(Color.argb(Math.round(255 * (1.0F - dragRangeRate)), 0, 0, 0));
+                flingLayout.setBackgroundColor(Color.argb(Math.round(230 * (1.0F - dragRangeRate)), 0, 0, 0));
                 return Unit.INSTANCE;
             }
         });
@@ -102,35 +102,15 @@ public class FullscreenImageAdapter extends PagerAdapter {
             }
         });
 
-        btnClose = (Button) viewLayout.findViewById(R.id.btnClose);
-
+        textView = viewLayout.findViewById(R.id.textView);
+        progressBar = viewLayout.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        //textView.setText(position + "/" + ar.size());
 
         Uri uri = Uri.parse(ar.get(position).getPhotoBigSizeUrl());
         Picasso.with(context)
                 .load(uri)
-                .into(imgDisplay, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        //_progressBar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onError() {
-
-                    }
-                });
-
-
-
-
-        // close button click event
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //_activity.finish();
-            }
-        });
-
+                .into(imgDisplay, new PicassoCallback(progressBar));
 
         ((ViewPager) container).addView(viewLayout);
 
@@ -141,5 +121,24 @@ public class FullscreenImageAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         ((ViewPager) container).removeView((RelativeLayout) object);
 
+    }
+
+    final class PicassoCallback implements Callback {
+
+        private ProgressBar progressBar;
+
+        public PicassoCallback(ProgressBar progressBar) {
+            this.progressBar = progressBar;
+        }
+
+        @Override
+        public void onSuccess() {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        public void onError() {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 }

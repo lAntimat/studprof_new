@@ -65,8 +65,8 @@ public class PhotoRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         ((NormalFeedViewHolder) holder).title.setText(title);
         ((NormalFeedViewHolder) holder).subTitle.setText(subTitle);
         ((NormalFeedViewHolder) holder).date.setText(date);
-        ((NormalFeedViewHolder) holder).visitCount.setText(countOfPhotos);
-        ((NormalFeedViewHolder) holder).photosCount.setText(countOfVisit);
+        ((NormalFeedViewHolder) holder).visitCount.setText(countOfVisit);
+        ((NormalFeedViewHolder) holder).photosCount.setText(countOfPhotos);
         ((NormalFeedViewHolder) holder).commentCount.setText(countOfComments);
 
         for (int i = 0; i < 8 ; i++) {

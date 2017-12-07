@@ -117,7 +117,6 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryActivi
         textView = v.findViewById(R.id.textView);
         imageView = v.findViewById(R.id.imageView);
         progressBar = v.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
 
         contentFrame = v.findViewById(R.id.content_frame);
         //contentFrame.setVisibility(View.INVISIBLE);
@@ -130,24 +129,6 @@ public class PhotoGalleryFragment extends Fragment implements PhotoGalleryActivi
         //|initFullsizeFragment();
 
         return v;
-    }
-
-    private void initFullsizeFragment() {
-        fragmentFullscreenImage = new FragmentFullscreenImage();
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        fm.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .add(R.id.content_frame, fragmentFullscreenImage)
-                .addToBackStack("list")
-                .commit();
-        //FragmentTransaction ft = getFragmentManager().beginTransaction();
-        //ft.hide(fragmentFullscreenImage);
-    }
-
-    public void hideFragment() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.hide(fragmentFullscreenImage);
-        //contentFrame.setVisibility(View.INVISIBLE);
     }
 
     private void emptyPic() {

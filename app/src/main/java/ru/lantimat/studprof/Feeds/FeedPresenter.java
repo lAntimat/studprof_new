@@ -17,6 +17,7 @@ public class FeedPresenter {
     private Repository repository;
     private int page = 1;
     private boolean isLoading = false;
+    private static boolean isOnRefresh = false;
 
     public FeedPresenter(FeedView view) {
         this.view = view;
@@ -24,7 +25,7 @@ public class FeedPresenter {
 
     public void loadDate() {
         if(!isLoading) {
-            view.showLoading();
+            if(!isOnRefresh) view.showLoading();
             isLoading = true;
             Repository.getFeeds(page, new Repository.FeedCallback() {
                 @Override
@@ -33,13 +34,24 @@ public class FeedPresenter {
                     view.showFeeds(ar);
                     page++;
                     isLoading = false;
+                    isOnRefresh = false;
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
+                    view.hideLoading();
+                    isLoading = false;
+                    isOnRefresh = false;
                     view.showError(R.string.error_connect + error.getLocalizedMessage());
                 }
             });
         }
+    }
+
+    public void refreshDate() {
+            page = 1;
+            isOnRefresh = true;
+            loadDate();
+
     }
 }
